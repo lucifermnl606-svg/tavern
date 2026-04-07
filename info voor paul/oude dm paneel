@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tavern Master - God Mode Dashboard</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <style>
+        :root { --gold: #f1c40f; --red: #e74c3c; --blue: #3498db; --green: #2ecc71; --purple: #9b59b6; --bg: #0a0a0a; --card-bg: #161616; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; margin: 0; padding: 20px; }
+        
+        .turn-bar { 
+            background: #1c1c1c; border: 2px solid var(--gold); padding: 15px; 
+            border-radius: 12px; margin-bottom: 20px; display: flex; 
+            justify-content: space-between; align-items: center;
+            position: sticky; top: 10px; z-index: 100;
+        }
+
+        .hero-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 15px; }
+        .hero-card { background: var(--card-bg); border-radius: 12px; padding: 15px; border: 1px solid #333; transition: 0.3s; position: relative; }
+        
+        .hero-card.active-turn { border: 2px solid var(--gold) !important; box-shadow: 0 0 20px rgba(241, 196, 15, 0.4); }
+        .hero-card.requesting { border: 2px solid var(--blue) !important; background: #0d1b2a; }
+
+        .hero-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #333; padding-bottom: 8px; }
+        .hero-title { color: var(--gold); font-size: 18px; font-weight: bold; }
+        .level-tag { background: var(--purple); color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+
+        /* Stats & EXP Bar */
+        .stats-display { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 10px; text-align: center; }
+        .stat-item { background: #000; padding: 8px 2px; border-radius: 6px; font-size: 16px; font-weight: bold; border: 1px solid #333; }
+        .label-sub { display: block; font-size: 8px; color: #666; text-transform: uppercase; }
+
+        .exp-container { background: #000; height: 8px; border-radius: 4px; margin-bottom: 15px; border: 1px solid #333; overflow: hidden; }
+        .exp-bar { background: var(--purple); height: 100%; width: 0%; transition: 0.5s; }
+
+        /* Controls */
+        .control-box { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+        .stat-ctrl-row { display: grid; grid-template-columns: 1fr 1.2fr 1fr; gap: 4px; align-items: center; background: #111; padding: 4px; border-radius: 4px; }
+        
+        .btn-ctrl { background: #222; color: white; border: 1px solid #444; padding: 5px; border-radius: 4px; cursor: pointer; font-size: 11px; }
+        .btn-plus { border-color: var(--green); color: var(--green); }
+        .btn-minus { border-color: var(--red); color: var(--red); }
+
+        /* Ability Box */
+        .ability-info-box { background: rgba(52, 152, 219, 0.15); border: 1px solid var(--blue); border-radius: 8px; padding: 10px; margin: 10px 0; display: none; }
+        .ability-desc { font-size: 11px; color: #ccc; font-style: italic; margin-bottom: 8px; border-left: 2px solid var(--blue); padding-left: 8px; }
+
+        .monster-row { display: flex; gap: 5px; margin-top: 10px; border-top: 1px solid #333; padding-top: 10px; }
+        select { background: #000; color: #ccc; border: 1px solid #444; padding: 8px; border-radius: 4px; flex-grow: 1; }
+
+        .battle-log { background: #000; height: 120px; overflow-y: auto; padding: 10px; font-family: monospace; color: var(--green); border: 1px solid #333; margin-top: 10px; font-size: 11px; }
+    </style>
+</head>
+<body>
+
+    <div class="turn-bar">
+        <div>
+            <span style="color:var(--gold); font-weight: bold;">HUIDIGE BEURT:</span>
+            <select id="turn-selector" onchange="changeTurn()" style="background:#000; color:white; border:1px solid var(--gold); padding:5px;">
+                <option value="0">-- Kies Held --</option>
+                <option value="1">Bard</option><option value="2">Rogue</option><option value="3">Wizard</option>
+                <option value="4">Wench</option><option value="5">Bouncer</option><option value="6">Paladin</option>
+                <option value="7">Monk</option><option value="8">Necro</option>
+            </select>
+        </div>
+        <button class="btn-ctrl" style="border-color: #1DB954; color: #1DB954; padding: 5px 15px;" onclick="nextTrack()">🎵 VOLGENDE TRACK</button>
+    </div>
+
+    <div id="heroGrid" class="hero-grid"></div>
+
+    <div style="margin-top: 20px;">
+        <div class="battle-log" id="battleLog"></div>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px;">
+            <button class="btn-ctrl" style="background:var(--red); height:40px;" onclick="massCombat()">🥊 MASS BRAWL</button>
+            <button class="btn-ctrl" style="background:var(--blue);" onclick="triggerEvent('PAYDAY', '+1 Munt')">💰 PAYDAY</button>
+            <button class="btn-ctrl" style="background:#333;" onclick="resetAll()">🔄 RESET ALL</button>
+        </div>
+    </div>
+
+<script>
+    const firebaseConfig = { 
+        apiKey: "AIzaSyAuQAVMtIGGxSWv4XQIMJyyA4nmwLtiYq8", 
+        authDomain: "the-lost-songs-of-the-tavern.firebaseapp.com", 
+        databaseURL: "https://the-lost-songs-of-the-tavern-default-rtdb.firebaseio.com", 
+        projectId: "the-lost-songs-of-the-tavern" 
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const hash = window.location.hash.substring(1);
+    const params = new URLSearchParams(hash);
+    let accessToken = params.get('access_token');
+
+    // Ability Database
+    const abilityData = {
+        "Vuurbal": { cost: "15 Mana", effect: "Dierct 30 DMG naar monster." },
+        "Bier Douche": { cost: "10 Mana", effect: "Iedereen +10 HP." },
+        "Stealth Strike": { cost: "5 Mana", effect: "Sla monster beurt over." },
+        "Gouden Lach": { cost: "5 Coins", effect: "Omkopen: monster vlucht." },
+        "Heal Touch": { cost: "12 Mana", effect: "Genees 25 HP van een medespeler." }
+    };
+
+    const heroes = ["Bard", "Rogue", "Wizard", "Wench", "Bouncer", "Paladin", "Monk", "Necro"];
+    const monsters = [{n:"Dronken Ork",hp:40},{n:"Rat",hp:20},{n:"Bier-Elem",hp:70}];
+
+    const grid = document.getElementById('heroGrid');
+    heroes.forEach((name, i) => {
+        const id = i + 1;
+        grid.innerHTML += `
+            <div class="hero-card" id="card-${id}">
+                <div class="hero-header">
+                    <span class="hero-title">${id}. ${name}</span>
+                    <span class="level-tag">LVL <span id="lvl-${id}">1</span></span>
+                </div>
+
+                <div class="exp-container"><div class="exp-bar" id="exp-bar-${id}"></div></div>
+                
+                <div class="stats-display">
+                    <div class="stat-item">💰<span id="c-${id}">0</span><span class="label-sub">Coins</span></div>
+                    <div class="stat-item" style="color:var(--blue)">🪄<span id="m-${id}">0</span><span class="label-sub">Mana</span></div>
+                    <div class="stat-item" style="color:var(--red)">❤️<span id="h-${id}">50</span><span class="label-sub">Health</span></div>
+                    <div class="stat-item" style="color:var(--purple)">✨<span id="e-${id}">0</span><span class="label-sub">EXP</span></div>
+                </div>
+
+                <div class="control-box">
+                    <div class="stat-ctrl-row">
+                        <button class="btn-ctrl btn-minus" onclick="upd(${id},'hp',-5)">-</button>
+                        <span style="font-size:10px; text-align:center;">HP</span>
+                        <button class="btn-ctrl btn-plus" onclick="upd(${id},'hp',5)">+</button>
+                    </div>
+                    <div class="stat-ctrl-row">
+                        <button class="btn-ctrl btn-minus" onclick="upd(${id},'exp',-10)">-</button>
+                        <span style="font-size:10px; text-align:center;">EXP</span>
+                        <button class="btn-ctrl btn-plus" onclick="upd(${id},'exp',10)">+</button>
+                    </div>
+                    <div class="stat-ctrl-row">
+                        <button class="btn-ctrl btn-minus" onclick="upd(${id},'coins',-1)">-</button>
+                        <span style="font-size:10px; text-align:center;">COIN</span>
+                        <button class="btn-ctrl btn-plus" onclick="upd(${id},'coins',1)">+</button>
+                    </div>
+                    <div class="stat-ctrl-row">
+                        <button class="btn-ctrl btn-minus" onclick="upd(${id},'mana',-5)">-</button>
+                        <span style="font-size:10px; text-align:center;">MANA</span>
+                        <button class="btn-ctrl btn-plus" onclick="upd(${id},'mana',5)">+</button>
+                    </div>
+                </div>
+                
+                <div id="approval-${id}" class="ability-info-box">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                        <b id="ab-name-${id}">Ability</b>
+                        <span id="ab-cost-${id}" style="color:var(--gold); font-size:11px;"></span>
+                    </div>
+                    <div class="ability-desc" id="ab-desc-${id}"></div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <button style="background:var(--green); border:none; padding:8px; border-radius:4px; font-weight:bold; cursor:pointer;" onclick="handleAbility(${id}, true)">GOED</button>
+                        <button style="background:var(--red); color:white; border:none; padding:8px; border-radius:4px; font-weight:bold; cursor:pointer;" onclick="handleAbility(${id}, false)">FOUT</button>
+                    </div>
+                </div>
+
+                <div class="monster-row">
+                    <select id="ms-${id}">${monsters.map((m,idx)=>`<option value="${idx}">${m.n}</option>`).join('')}</select>
+                    <button class="btn-ctrl" style="background:var(--red); border:none; padding:8px 15px;" onclick="spawn(${id})">👹</button>
+                </div>
+            </div>`;
+    });
+
+    // Firebase Sync
+    for(let i=1; i<=8; i++) {
+        db.ref(`players/${i}`).on('value', snap => {
+            const d = snap.val() || {};
+            if(!document.getElementById(`c-${i}`)) return;
+
+            document.getElementById(`c-${i}`).innerText = d.coins || 0;
+            document.getElementById(`m-${i}`).innerText = d.mana || 0;
+            document.getElementById(`h-${i}`).innerText = d.hp || 0;
+            document.getElementById(`e-${i}`).innerText = d.exp || 0;
+            
+            // Level & EXP Bar Logic (Level = elke 100 EXP)
+            const level = Math.floor((d.exp || 0) / 100) + 1;
+            const progress = (d.exp || 0) % 100;
+            document.getElementById(`lvl-${i}`).innerText = level;
+            document.getElementById(`exp-bar-${i}`).style.width = progress + "%";
+
+            // Ability Request Sync
+            const appBox = document.getElementById(`approval-${i}`);
+            if(d.abilityRequest) {
+                const req = d.abilityRequest.name;
+                const info = abilityData[req] || { cost: "?", effect: "Onbekende kracht..." };
+                
+                appBox.style.display = 'block';
+                document.getElementById(`ab-name-${i}`).innerText = req;
+                document.getElementById(`ab-cost-${i}`).innerText = "Kosten: " + info.cost;
+                document.getElementById(`ab-desc-${i}`).innerText = info.effect;
+                document.getElementById(`card-${i}`).classList.add('requesting');
+            } else {
+                appBox.style.display = 'none';
+                document.getElementById(`card-${i}`).classList.remove('requesting');
+            }
+        });
+    }
+
+    // Luister naar beurt
+    db.ref('gameState/currentTurn').on('value', snap => {
+        const activeId = snap.val();
+        document.querySelectorAll('.hero-card').forEach(c => c.classList.remove('active-turn'));
+        if(activeId > 0) document.getElementById(`card-${activeId}`).classList.add('active-turn');
+    });
+
+    function upd(id, f, a) { db.ref(`players/${id}/${f}`).transaction(c => (c || 0) + a); }
+    
+    function handleAbility(id, approved) {
+        db.ref(`players/${id}`).update({ abilityStatus: approved ? 'approved' : 'denied', abilityRequest: null });
+        log(approved ? `✅ ${heroes[id-1]} ability OK` : `❌ ${heroes[id-1]} ability NO`);
+    }
+
+    function changeTurn() {
+        const id = document.getElementById('turn-selector').value;
+        db.ref('gameState').update({ currentTurn: parseInt(id) });
+        log("📢 Beurt naar: " + (heroes[id-1] || "Niemand"));
+    }
+
+    async function nextTrack() {
+        if(!accessToken) return alert("Geen Spotify!");
+        fetch('https://api.spotify.com/v1/me/player/next', { method: 'POST', headers: { 'Authorization': `Bearer ${accessToken}` } });
+    }
+
+    function spawn(pid) {
+        const m = monsters[document.getElementById(`ms-${pid}`).value];
+        db.ref(`players/${pid}/combat`).set({ active: true, monsterName: m.n, monsterHP: m.hp, t: Date.now() });
+        log(`👹 ${m.n} gestuurd naar ${heroes[pid-1]}`);
+    }
+
+    function resetAll() {
+        if(!confirm("Echt alles wissen?")) return;
+        for(let i=1; i<=8; i++) db.ref(`players/${i}`).update({ hp: 50, mana: 20, coins: 0, exp: 0, "combat/active": false });
+        log("🔄 Tavern volledig gereset!");
+    }
+
+    function log(m) {
+        const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        document.getElementById('battleLog').insertAdjacentHTML('afterbegin', `<div>[${time}] ${m}</div>`);
+    }
+</script>
+</body>
+</html>

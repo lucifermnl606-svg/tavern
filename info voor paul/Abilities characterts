@@ -1,0 +1,109 @@
+const classData = {
+    "Wizard": [
+        { name: "⌛ Warp", level: 1, cost: 4, target: "target", fx: "slow", duration: 2, desc: "Vertraagt de tijd voor doelwit." },
+        { name: "👁 Look", level: 2, cost: 8, target: "self", fx: "vision", desc: "Geeft een visioen van de actie." },
+        { name: "🌀 Echo", level: 4, cost: 12, target: "target", fx: "repeat", desc: "Herhaalt de laatste actie." },
+        { name: "🎵 Reverb", level: 8, cost: 15, target: "target", buff: 5, desc: "Versterkt volgende aanval (+5)." },
+        { name: "⚡ Bass Boost", level: 10, cost: 20, target: "target", damage: 10, fx: "flash", desc: "10 HP Schade." },
+        { name: "🛡 Vinyl Shield", level: 12, cost: 25, target: "self", heal: 5, fx: "shield", desc: "Blokkeert 5 HP schade." },
+        { name: "🔥 Scratch", level: 15, cost: 30, target: "target", damage: 18, fx: "flash", desc: "18 HP Schade." },
+        { name: "🌟 Mastering", level: 20, cost: 50, target: "self", heal: 99, fx: "invincible", desc: "Onoverwinnelijk." }
+    ],
+    "Bard": [
+        { name: "🎸 Solo", level: 1, cost: 5, target: "self", buff: "luck", desc: "Verhoogt eigen geluk." },
+        { name: "💤 Lullaby", level: 2, cost: 10, target: "target", fx: "sleep", duration: 2, desc: "Slaap (2 beurten)." },
+        { name: "🎤 Chorus", level: 4, cost: 18, target: "target", heal: 8, desc: "8 HP Herstel." },
+        { name: "🔀 Remix", level: 8, cost: 22, target: "target", fx: "reset", desc: "Reset stats." },
+        { name: "🔊 Amplifier", level: 10, cost: 25, target: "self", fx: "double_damage", desc: "Double damage." },
+        { name: "🎼 Symphony", level: 12, cost: 35, target: "team", heal: 12, desc: "Team Heal." },
+        { name: "🔁 Encore", level: 15, cost: 45, target: "self", fx: "extra_turn", desc: "Extra beurt." },
+        { name: "🏆 Chart Topper", level: 20, cost: 65, target: "target", damage: 25, fx: "steal_coin", desc: "25 HP + Coin steel." }
+    ],
+    "Rogue": [
+        { name: "🗡 Stab", level: 1, cost: 3, target: "target", damage: 3, desc: "3 HP Schade." },
+        { name: "🌫 Smoke Screen", level: 2, cost: 7, target: "target", fx: "evade", desc: "Ontwijk aanval." },
+        { name: "💰 Pickpocket", level: 4, cost: 12, target: "target", fx: "steal_coin", amount: 5, desc: "Steel 5 coins." },
+        { name: "🕸 Tripwire", level: 8, cost: 16, target: "target", fx: "stun", duration: 2, desc: "Stun (2 beurten)." },
+        { name: "🧪 Poison", level: 10, cost: 24, target: "target", damage: 5, fx: "poison", duration: 3, desc: "5 HP per ronde." },
+        { name: "👣 Shadow Step", level: 12, cost: 30, target: "self", fx: "invisible", desc: "Onzichtbaar." },
+        { name: "🔪 Backstab", level: 15, cost: 40, target: "target", damage: 18, fx: "pierce", desc: "Negeert defense." },
+        { name: "💀 Assassinate", level: 20, cost: 60, target: "target", damage: 30, desc: "De genadeslag." }
+    ],
+    "Paladin": [
+        { name: "🛡 Smite", level: 1, cost: 6, target: "target", damage: 5, desc: "5 HP Schade." },
+        { name: "✨ Cleanse", level: 2, cost: 9, target: "target", fx: "dispel", desc: "Verwijder FX." },
+        { name: "🤝 Guardian", level: 4, cost: 14, target: "target", fx: "cover", desc: "Vang schade op." },
+        { name: "💿 Holy Vinyl", level: 8, cost: 22, target: "self", heal: 15, desc: "15 HP Herstel." },
+        { name: "🔅 Aura", level: 10, cost: 28, target: "team", fx: "mana_regen", desc: "Team Mana." },
+        { name: "🧱 Wall of Sound", level: 12, cost: 38, target: "team", heal: 10, fx: "shield", desc: "Team Shield." },
+        { name: "⚖ Judgement", level: 15, cost: 48, target: "target", damage: 20, desc: "20 HP Schade." },
+        { name: "👼 Resurrection", level: 20, cost: 85, target: "target", heal: 15, fx: "revive", desc: "Breng dode terug." }
+    ],
+    "Wench": [
+        { name: "🍺 Serve", level: 1, cost: 4, target: "target", fx: "give_mana", amount: 10, desc: "Geeft Mana." },
+        { name: "🍲 Stew", level: 2, cost: 8, target: "target", heal: 6, desc: "6 HP Herstel." },
+        { name: "🧹 Sweep", level: 4, cost: 12, target: "target", damage: 2, fx: "stun", duration: 2, desc: "Stun (2 beurten)." },
+        { name: "🍷 Fine Wine", level: 8, cost: 20, target: "target", fx: "buff_stats", desc: "Buff stats." },
+        { name: "📣 Gossip", level: 10, cost: 25, target: "target", fx: "drain_mana", desc: "Drain Mana." },
+        { name: "🍗 Feast", level: 12, cost: 35, target: "target", heal: 20, desc: "20 HP Herstel." },
+        { name: "🍳 Iron Skillet", level: 15, cost: 42, target: "target", damage: 15, desc: "15 HP Schade." },
+        { name: "🏰 Grand Banquet", level: 20, cost: 70, target: "team", heal: 50, desc: "Full Team Heal." }
+    ],
+    "Bouncer": [
+        { name: "👊 Punch", level: 1, cost: 5, target: "target", damage: 6, desc: "6 HP Schade." },
+        { name: "🤚 Block", level: 2, cost: 10, target: "self", fx: "mitigation", amount: 0.5, desc: "50% Damage Reduction." },
+        { name: "🚪 Door Eject", level: 4, cost: 15, target: "target", damage: 4, fx: "stun", duration: 2, desc: "Stun (2 beurten)." },
+        { name: "🧱 The Wall", level: 8, cost: 25, target: "self", fx: "immovable", desc: "Onbeweeglijk." },
+        { name: "😤 Intimidate", level: 10, cost: 30, target: "target", fx: "lower_atk", desc: "Verlaag Atk." },
+        { name: "💥 Ground Slam", level: 12, cost: 40, target: "aoe", damage: 12, desc: "AoE Schade." },
+        { name: "⛓ Lockdown", level: 15, cost: 50, target: "target", fx: "silence", desc: "Blokkeer abilities." },
+        { name: "🐘 Stampede", level: 20, cost: 75, target: "target", damage: 35, desc: "35 HP Schade." }
+    ],
+    "Monk": [
+        { name: "🧘 Focus", level: 1, cost: 2, target: "self", fx: "mana_discount", desc: "Mana korting." },
+        { name: "🧤 Palm Strike", level: 2, cost: 6, target: "target", damage: 5, fx: "steal_mana", desc: "Steel Mana." },
+        { name: "👣 Dash", level: 4, cost: 10, target: "self", fx: "teleport", desc: "Teleport." },
+        { name: "🌀 Inner Peace", level: 8, cost: 18, target: "self", fx: "mana_regen", desc: "Mana regen." },
+        { name: "🤜 Combo Kick", level: 10, cost: 26, target: "target", damage: 14, desc: "14 HP Schade." },
+        { name: "☁ Cloud Walk", level: 12, cost: 34, target: "self", fx: "fly", desc: "Vlieg." },
+        { name: "☸ Zen Moment", level: 15, cost: 45, target: "self", fx: "free_spells", desc: "Tijdelijk Gratis." },
+        { name: "⛩ Nirvana", level: 20, cost: 80, target: "self", heal: 50, fx: "reset", desc: "Reset stats." }
+    ],
+    "Necro": [
+        { name: "💀 Raise", level: 1, cost: 6, target: "target", damage: 3, fx: "poison", duration: 3, desc: "Dot schade." },
+        { name: "🧛 Soul Tap", level: 2, cost: 10, target: "target", damage: 5, healSelf: 5, desc: "Life steal." },
+        { name: "⚰ Decay", level: 4, cost: 16, target: "target", damage: 3, fx: "corrosion", desc: "Corrosie." },
+        { name: "🦇 Bat", level: 8, cost: 24, target: "target", damage: 6, fx: "blind", desc: "Blind vijand." },
+        { name: "🦴 Bone Shield", level: 10, cost: 32, target: "self", heal: 8, fx: "shield", desc: "8 HP Shield." },
+        { name: "🌑 Curse", level: 12, cost: 40, target: "target", fx: "drain_mana_percent", amount: 0.5, desc: "-50% Mana vijand." },
+        { name: "🧟 Zombie Groove", level: 15, cost: 55, target: "target", fx: "zombify", desc: "Maak Zombie." },
+        { name: "🌌 Army", level: 20, cost: 90, target: "target", damage: 40, desc: "40 HP Schade." }
+    ],
+    "Druid": [
+        { name: "🌿 Entangle", level: 1, cost: 5, target: "target", damage: 2, fx: "root", desc: "Vastzetten." },
+        { name: "🐻 Bear Form", level: 2, cost: 10, target: "self", heal: 10, fx: "transform", desc: "+10 HP." },
+        { name: "🐝 Bee Swarm", level: 4, cost: 14, target: "target", damage: 5, fx: "poison", desc: "Schade." },
+        { name: "🍄 Spores", level: 8, cost: 20, target: "target", fx: "smoke", desc: "Mist." },
+        { name: "🦅 Eagle Eye", level: 10, cost: 25, target: "self", fx: "always_hit", desc: "100% Hit." },
+        { name: "🌳 Ironwood", level: 12, cost: 35, target: "self", heal: 12, fx: "shield", desc: "Shield." },
+        { name: "🐺 Pack Hunter", level: 15, cost: 45, target: "target", damage: 22, desc: "22 HP Schade." },
+        { name: "⛈️ Nature", level: 20, cost: 75, target: "target", damage: 35, desc: "35 HP Schade." }
+    ],
+    "Gravedigger": [
+        { name: "⚰️ Bury", level: 1, cost: 4, target: "target", damage: 14, fx: "poison", desc: "14 HP Schade." },
+        { name: "🕯️ Holy Candle", level: 2, cost: 8, target: "self", fx: "anti_curse", desc: "Anti-vloek." },
+        { name: "⛓️ Shackle", level: 4, cost: 15, target: "target", fx: "lock_all", desc: "BLOKKEER ALLES." },
+        { name: "🌑 Deep Dig", level: 8, cost: 22, target: "target", damage: 8, fx: "sleep", duration: 2, desc: "Stun + 8 HP (2 beurt)." },
+        { name: "🛡️ Iron Casket", level: 10, cost: 30, target: "self", heal: 15, fx: "shield", desc: "15 HP Blok." },
+        { name: "⚖️ Exorcism", level: 12, cost: 42, target: "target", damage: 20, fx: "holy", desc: "Holy damage." },
+        { name: "⛪ Ground", level: 15, cost: 55, target: "team", fx: "immunity", desc: "Team Immuniteit." },
+        { name: "🪦 RIP", level: 20, cost: 80, target: "target", fx: "zombify", desc: "Maak Zombie." }
+    ],
+    "Zombie": [
+        { name: "🧠 Braaaaains!", level: 1, cost: 0, target: "target", damage: 20, healSelf: 5, desc: "Eet hersenen en herstel HP." },
+        { name: "🖐️ Slap", level: 1, cost: 0, target: "target", damage: 25, desc: "Een flinke mep." },
+        { name: "🤮 Toxic Puke", level: 1, cost: 0, target: "target", damage: 15, fx: "poison", desc: "Spuug gif over je vijand." },
+        { name: "🦴 Bone Throw", level: 1, cost: 0, target: "target", damage: 35, damageSelf: 10, desc: "Gooi je eigen ribbenkast! (-10 HP)" },
+        { name: "☣️ Infection", level: 1, cost: 0, target: "target", fx: "zombify", requirement: "poisoned", desc: "Alleen op vergiftigde vijanden!" }
+    ]
+};

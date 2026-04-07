@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <title>Tavern RPG - DM OVERLORD v8.9</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <style>
+        :root { --neon-green: #00ff41; --dark-bg: #0a0a0a; --panel-bg: #151515; --red: #ff3e3e; --gold: #f1c40f; --blue: #3498db; --purple: #9b59b6; }
+        body { font-family: 'Courier New', monospace; background: var(--dark-bg); color: var(--neon-green); margin: 0; padding: 20px; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--neon-green); padding-bottom: 10px; margin-bottom: 20px; }
+        h1 { margin: 0; font-size: 24px; }
+        .turn-badge { background: var(--red); color: white; padding: 5px 15px; border-radius: 5px; font-weight: bold; }
+
+        .panel { background: var(--panel-bg); border: 1px solid #333; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        h3 { color: var(--gold); text-transform: uppercase; font-size: 14px; letter-spacing: 2px; margin-top: 0; }
+
+        table { width: 100%; border-collapse: collapse; background: #000; }
+        th { background: #111; color: var(--neon-green); padding: 12px; text-align: left; font-size: 11px; border-bottom: 1px solid #333; text-transform: uppercase; }
+        td { padding: 8px; border-bottom: 1px solid #222; color: #fff; font-size: 12px; }
+
+        .input-edit { background: #000; border: 1px solid #444; color: white; width: 50px; padding: 5px; text-align: center; border-radius: 4px; }
+        .select-edit { background: #000; border: 1px solid #444; color: white; padding: 5px; border-radius: 4px; width: 110px; font-size: 11px; }
+
+        .btn { padding: 8px 12px; cursor: pointer; border: none; border-radius: 4px; font-weight: bold; font-family: inherit; font-size: 10px; margin-right: 5px; text-transform: uppercase; }
+        .btn-green { background: var(--neon-green); color: black; }
+        .btn-blue { background: var(--blue); color: white; }
+        .btn-gold { background: var(--gold); color: black; }
+        .btn-red { background: var(--red); color: white; }
+        
+        .active-row { outline: 2px solid var(--neon-green); background: rgba(0, 255, 65, 0.05); }
+        .zombie-timer-tag { color: var(--red); font-weight: bold; font-size: 10px; display: block; }
+        
+        #battle-log { height: 120px; overflow-y: auto; background: #050505; padding: 10px; font-size: 11px; color: #888; border: 1px solid #222; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>DM OVERLORD <small style="font-size: 14px;">v8.9 (ZOMBIE MASTER)</small></h1>
+        <div>HUIDIGE BEURT: <span id="turn-display" class="turn-badge">...</span></div>
+    </div>
+
+    <div class="panel">
+        <h3>GLOBAL COMMANDS</h3>
+        <button class="btn btn-green" onclick="manualPassTurn()">FORCEREN VOLGENDE BEURT (TIMER -1)</button>
+        <button class="btn btn-blue" onclick="massAction('hp', 50)">FULL HEAL ALL</button>
+        <button class="btn btn-gold" onclick="massAction('isLocked', false)">UNLOCK REACTIONS ALL</button>
+        <button class="btn btn-red" onclick="clearLogs()">LOGS WISSEN</button>
+    </div>
+
+    <div class="panel">
+        <h3>SQUAD STATUS</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Speler</th>
+                    <th>Klasse & Status</th>
+                    <th>HP</th>
+                    <th>Mana</th>
+                    <th>Goud</th>
+                    <th>Lvl</th>
+                    <th>Lock</th>
+                    <th>Beurt Regie</th>
+                    <th>Control</th>
+                </tr>
+            </thead>
+            <tbody id="player-table"></tbody>
+        </table>
+    </div>
+
+    <div class="panel">
+        <h3>VOID LOGS</h3>
+        <div id="battle-log"></div>
+    </div>
+
+<script>
+    const firebaseConfig = { 
+        apiKey: "AIzaSyAuQAVMtIGGxSWv4XQIMJyyA4nmwLtiYq8", 
+        databaseURL: "https://the-lost-songs-of-the-tavern-default-rtdb.firebaseio.com", 
+        projectId: "the-lost-songs-of-the-tavern" 
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // Alle 10 klassen + Zombie
+    const allRoles = ["Wizard", "Bard", "Rogue", "Paladin", "Wench", "Bouncer", "Monk", "Necro", "Druid", "Gravedigger", "Zombie"];
+
+    db.ref('current_turn').on('value', snap => {
+        document.getElementById('turn-display').innerText = (snap.val() || "GEEN").toUpperCase();
+    });
+
+    db.ref('accounts').on('value', snap => {
+        const table = document.getElementById('player-table');
+        table.innerHTML = "";
+        const players = snap.val();
+        if (!players) return;
+
+        db.ref('current_turn').once('value', turnSnap => {
+            const currentTurn = turnSnap.val();
+
+            Object.keys(players).forEach(name => {
+                const p = players[name];
+                const isTurn = (name === currentTurn);
+                
+                const tr = document.createElement('tr');
+                if(isTurn) tr.className = 'active-row';
+                
+                // Genereer de Select opties dynamisch
+                let classOptions = allRoles.map(role => 
+                    `<option value="${role}" ${p.class === role ? 'selected' : ''}>${role}</option>`
+                ).join('');
+
+                tr.innerHTML = `
+                    <td style="color:var(--gold); font-weight:bold;">${name.toUpperCase()}</td>
+                    <td>
+                        <select onchange="updateStat('${name}', 'class', this.value)" class="select-edit">
+                            ${classOptions}
+                        </select>
+                        ${p.zombieTimer > 0 ? `<span class="zombie-timer-tag">⌛ ZOMBIE: ${p.zombieTimer}</span>` : ''}
+                    </td>
+                    <td><input type="number" class="input-edit" value="${p.hp}" onchange="updateStat('${name}', 'hp', this.value)"></td>
+                    <td><input type="number" class="input-edit" value="${p.mana}" onchange="updateStat('${name}', 'mana', this.value)"></td>
+                    <td><input type="number" class="input-edit" value="${p.coins}" onchange="updateStat('${name}', 'coins', this.value)"></td>
+                    <td><input type="number" class="input-edit" value="${p.level}" onchange="updateStat('${name}', 'level', this.value)"></td>
+                    <td><button class="btn ${p.isLocked ? 'btn-red' : 'btn-grey'}" onclick="updateStat('${name}', 'isLocked', ${!p.isLocked})">
+                        ${p.isLocked ? 'LOCKED' : 'READY'}
+                    </button></td>
+                    <td>
+                        <button class="btn ${isTurn ? 'btn-red' : 'btn-green'}" onclick="setTurn('${name}')">
+                            ${isTurn ? 'ACTIEF' : 'GEEF BEURT'}
+                        </button>
+                    </td>
+                    <td>
+                        <button class="btn btn-blue" onclick="quickHeal('${name}')">MAX</button>
+                        <button class="btn btn-red" onclick="kickPlayer('${name}')">KICK</button>
+                    </td>
+                `;
+                table.appendChild(tr);
+            });
+        });
+    });
+
+    function updateStat(name, stat, val) {
+        let finalVal = (val === 'true') ? true : (val === 'false' ? false : (isNaN(val) ? val : parseInt(val)));
+        db.ref('accounts/' + name).update({ [stat]: finalVal });
+        addLog(`${name}: ${stat} -> ${val}`);
+    }
+
+    function setTurn(name) {
+        db.ref('current_turn').set(name);
+        addLog(`Force Turn -> ${name}`);
+    }
+
+    function quickHeal(name) {
+        db.ref('accounts/' + name).update({ hp: 50, mana: 20, isLocked: false });
+        addLog(`${name} restored to 50HP/20MP`);
+    }
+
+    function massAction(stat, val) {
+        db.ref('accounts').once('value', snap => {
+            snap.forEach(child => {
+                db.ref('accounts/' + child.key).update({ [stat]: val });
+            });
+        });
+        addLog(`MASS UPDATE: ${stat} -> ${val}`);
+    }
+
+    function manualPassTurn() {
+        db.ref('accounts').once('value', snap => {
+            const accounts = snap.val();
+            const keys = Object.keys(accounts);
+            db.ref('current_turn').once('value', turnSnap => {
+                let nextIndex = (keys.indexOf(turnSnap.val()) + 1) % keys.length;
+                const nextPlayer = keys[nextIndex];
+
+                // TIMER LOGICA (Zelfde als in player app)
+                const npData = accounts[nextPlayer];
+                if(npData && npData.class === "Zombie") {
+                    let newTimer = (npData.zombieTimer || 1) - 1;
+                    if(newTimer <= 0) {
+                        db.ref('accounts/' + nextPlayer).update({
+                            class: npData.originalClass || "Wizard",
+                            zombieTimer: 0
+                        });
+                        addLog(`${nextPlayer} is geen zombie meer.`);
+                    } else {
+                        db.ref('accounts/' + nextPlayer).update({ zombieTimer: newTimer });
+                    }
+                }
+
+                db.ref('current_turn').set(nextPlayer);
+                addLog(`Next turn: ${nextPlayer}`);
+            });
+        });
+    }
+
+    function kickPlayer(name) {
+        if(confirm(`Speler ${name} permanent verwijderen?`)) db.ref('accounts/' + name).remove();
+    }
+
+    function addLog(msg) {
+        const log = document.getElementById('battle-log');
+        log.innerHTML = `<div style="margin-bottom:2px;">> [${new Date().toLocaleTimeString()}] ${msg}</div>` + log.innerHTML;
+    }
+
+    function clearLogs() { document.getElementById('battle-log').innerHTML = ""; }
+</script>
+</body>
+</html>

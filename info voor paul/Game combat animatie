@@ -1,0 +1,174 @@
+using UnityEngine;
+using UnityEngine.UI;
+using System.Collections;
+
+public class CombatEffects : MonoBehaviour
+{
+    public RectTransform daggerTransform; // Sleep de dolk hierheen
+    public CanvasGroup bloodCanvasGroup; // Sleep de bloed-overlay hierheen
+    public float animationSpeed = 5f;
+
+    public void TriggerDaggerAttack()
+    {
+        StartCoroutine(PlayAttackAnimation());
+    }
+
+    private IEnumerator PlayAttackAnimation()
+    {
+        // 1. Reset posities
+        daggerTransform.anchoredPosition = new Vector2(-1000, -500); // Start linksonder buiten beeld
+        bloodCanvasGroup.alpha = 0;
+
+        // 2. Dolk schiet door het scherm (Animeren naar rechtsboven)
+        float elapsed = 0;
+        Vector2 targetPos = new Vector2(1000, 500);
+        Vector2 startPos = daggerTransform.anchoredPosition;
+
+        while (elapsed < 0.5f)
+        {
+            daggerTransform.anchoredPosition = Vector2.Lerp(startPos, targetPos, elapsed * animationSpeed);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        // 3. Bloed spat op het scherm (Fade in)
+        float bloodElapsed = 0;
+        while (bloodElapsed < 0.2f)
+        {
+            bloodCanvasGroup.alpha = Mathf.Lerp(0, 1, bloodElapsed / 0.2f);
+            bloodElapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        // 4. Wacht even en laat het bloed langzaam wegtrekken
+        yield return new WaitForSeconds(1f);
+        
+        while (bloodCanvasGroup.alpha > 0)
+        {
+            bloodCanvasGroup.alpha -= Time.deltaTime;
+            yield return null;
+        }
+    }
+}
+
+
+
+
+deel 2:
+using UnityEngine;
+using UnityEngine.UI;
+using System.Collections;
+
+public class AdvancedCombatEffects : MonoBehaviour
+{
+    [Header("UI Elementen")]
+    public RectTransform daggerTransform; 
+    public CanvasGroup bloodCanvasGroup; // De statische rode overlay
+
+    [Header("Nieuwe Effecten")]
+    public Transform cameraTransform;      // Sleep de 'Main Camera' hierheen
+    public ParticleSystem bloodParticles; // Sleep je 'BloodParticles' GameObject hierheen
+
+    [Header("Instellingen")]
+    public float animationSpeed = 5f;
+    public float shakeDuration = 0.2f;   // Hoe lang trilt het scherm
+    public float shakeMagnitude = 0.3f;  // Hoe hard trilt het scherm
+
+    // Variabele om de originele camerapositie te onthouden
+    private Vector3 originalCameraPos;
+
+    void Start()
+    {
+        // Onthoud waar de camera begon
+        if (cameraTransform != null)
+        {
+            originalCameraPos = cameraTransform.localPosition;
+        }
+    }
+
+    [ContextMenu("Test Aanval")] // Hiermee kun je in de Editor rechtsklikken op het script om te testen
+    public void TriggerDaggerAttack()
+    {
+        StopAllCoroutines(); // Voorkom dat animaties door elkaar lopen
+        StartCoroutine(PlayAdvancedAttackAnimation());
+    }
+
+    private IEnumerator PlayAdvancedAttackAnimation()
+    {
+        // 1. Reset posities & UI
+        daggerTransform.anchoredPosition = new Vector2(-1200, -600); // Iets verder weg starten
+        bloodCanvasGroup.alpha = 0;
+        if (cameraTransform != null) cameraTransform.localPosition = originalCameraPos;
+
+        // 2. Dolk schiet door het scherm
+        float elapsed = 0;
+        Vector2 targetPos = new Vector2(1200, 600);
+        Vector2 startPos = daggerTransform.anchoredPosition;
+
+        // Start geluid: Swoosh (hier code toevoegen)
+
+        while (elapsed < 0.4f) // Iets snellere dolk
+        {
+            daggerTransform.anchoredPosition = Vector2.Lerp(startPos, targetPos, elapsed * animationSpeed);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        // --- HET MOMENT VAN IMPACT ---
+
+        // 3. Start Particle System (Bloedspetters)
+        if (bloodParticles != null)
+        {
+            bloodParticles.Play();
+        }
+
+        // 4. Start Screen Shake
+        StartCoroutine(DoScreenShake());
+
+        // Start geluid: Impact/Splatter (hier code toevoegen)
+
+        // 5. Statisch Bloed fadet in (voor de 'blijvende' schade look)
+        float bloodElapsed = 0;
+        while (bloodElapsed < 0.15f)
+        {
+            bloodCanvasGroup.alpha = Mathf.Lerp(0, 0.8f, bloodElapsed / 0.15f); // Niet volledig ondoorzichtig
+            bloodElapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        // 6. Wacht even en fade rustig uit
+        yield return new WaitForSeconds(1.5f);
+        
+        while (bloodCanvasGroup.alpha > 0)
+        {
+            bloodCanvasGroup.alpha -= Time.deltaTime * 0.5f; // Langzamer uitfaden
+            yield return null;
+        }
+    }
+
+    // --- DE NIEUWE SHAKE COROUTINE ---
+    private IEnumerator DoScreenShake()
+    {
+        if (cameraTransform == null) yield break;
+
+        float elapsed = 0.0f;
+
+        while (elapsed < shakeDuration)
+        {
+            // Genereer een willekeurige verschuiving
+            float x = Random.Range(-1f, 1f) * shakeMagnitude;
+            float y = Random.Range(-1f, 1f) * shakeMagnitude;
+
+            // Pas de verschuiving toe op de originele positie
+            cameraTransform.localPosition = originalCameraPos + new Vector3(x, y, 0);
+
+            elapsed += Time.deltaTime;
+
+            // Wacht tot het volgende frame
+            yield return null;
+        }
+
+        // Zet de camera netjes terug op zijn plek
+        cameraTransform.localPosition = originalCameraPos;
+    }
+}

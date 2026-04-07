@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tavern RPG - Alle Helden & Abilities</title>
+    <style>
+        :root {
+            --gold: #f1c40f; --red: #e74c3c; --blue: #3498db; --green: #2ecc71; 
+            --purple: #9b59b6; --bg: #050510; --card: #0a0a1a; --border: #1e3799;
+        }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; padding: 20px; }
+        .container { max-width: 1100px; margin: 0 auto; }
+        h1 { text-align: center; color: var(--gold); border-bottom: 2px solid var(--gold); padding-bottom: 10px; }
+        
+        .class-section { 
+            background: var(--card); border: 2px solid var(--border); 
+            border-radius: 15px; margin-bottom: 30px; overflow: hidden; 
+        }
+        .class-header { background: var(--border); padding: 10px 20px; color: var(--gold); font-size: 1.5rem; }
+        
+        .ability-grid { 
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); 
+            gap: 10px; padding: 15px; 
+        }
+        .ability-card { 
+            background: rgba(255,255,255,0.03); border: 1px solid #222; 
+            padding: 10px; border-radius: 8px; font-size: 0.9rem;
+        }
+        .ability-name { color: var(--gold); font-weight: bold; display: block; }
+        .ability-desc { color: #bbb; display: block; margin: 5px 0; min-height: 35px; }
+        .ability-meta { 
+            display: flex; justify-content: space-between; 
+            font-size: 0.75rem; border-top: 1px solid #333; padding-top: 5px; 
+        }
+        .zombie-style { border-color: var(--green); }
+        .zombie-style .class-header { background: #1a2310; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Tavern RPG - Full Ability Compendium</h1>
+
+    <section class="class-section">
+        <div class="class-header">Wizard 🧙‍♂️</div>
+        <div class="ability-grid">
+            <div class="ability-card"><span class="ability-name">⌛ Warp (Lvl 1)</span><span class="ability-desc">Vertraagt de tijd voor doelwit.</span><div class="ability-meta"><span>4 MP</span><span>Target</span></div></div>
+            <div class="ability-card"><span class="ability-name">👁 Look (Lvl 2)</span><span class="ability-desc">Geeft een visioen van de actie.</span><div class="ability-meta"><span>8 MP</span><span>Self</span></div></div>
+            <div class="ability-card"><span class="ability-name">🌀 Echo (Lvl 4)</span><span class="ability-desc">Herhaalt de laatste actie.</span><div class="ability-meta"><span>12 MP</span><span>Target</span></div></div>
+            <div class="ability-card"><span class="ability-name">🎵 Reverb (Lvl 8)</span><span class="ability-desc">Versterkt volgende aanval (+5).</span><div class="ability-meta"><span>15 MP</span><span>Target</span></div></div>
+            <div class="ability-card"><span class="ability-name">⚡ Bass Boost (Lvl 10)</span><span class="ability-desc">10 HP Schade. (Flash FX)</span><div class="ability-meta"><span>20 MP</span><span>10 DMG</span></div></div>
+            <div class="ability-card"><span class="ability-name">🛡 Vinyl Shield (Lvl 12)</span><span class="ability-desc">Blokkeert 5 HP schade.</span><div class="ability-meta"><span>25 MP</span><span>5 Heal/Block</span></div></div>
+            <div class="ability-card"><span class="ability-name">🔥 Scratch (Lvl 15)</span><span class="ability-desc">18 HP Schade. (Flash FX)</span><div class="ability-meta"><span>30 MP</span><span>18 DMG</span></div></div>
+            <div class="ability-card"><span class="ability-name">🌟 Mastering (Lvl 20)</span><span class="ability-desc">Onoverwinnelijk (99 Heal).</span><div class="ability-meta"><span>50 MP</span><span>99 Heal</span></div></div>
+        </div>
+    </section>
+
+    <section class="class-section">
+        <div class="class-header">Bard 🎸</div>
+        <div class="ability-grid">
+            <div class="ability-card"><span class="ability-name">🎸 Solo (Lvl 1)</span><span class="ability-desc">Verhoogt eigen geluk.</span><div class="ability-meta"><span>5 MP</span><span>Self</span></div></div>
+            <div class="ability-card"><span class="ability-name">💤 Lullaby (Lvl 2)</span><span class="ability-desc">Slaap (2 beurten).</span><div class="ability-meta"><span>10 MP</span><span>Sleep FX</span></div></div>
+            <div class="ability-card"><span class="ability-name">🎤 Chorus (Lvl 4)</span><span class="ability-desc">8 HP Herstel.</span><div class="ability-meta"><span>18 MP</span><span>8 Heal</span></div></div>
+            <div class="ability-card"><span class="ability-name">🔀 Remix (Lvl 8)</span><span class="ability-desc">Reset alle stats.</span><div class="ability-meta"><span>22 MP</span><span>Target</span></div></div>
+            <div class="ability-card"><span class="ability-name">🔊 Amplifier (Lvl 10)</span><span class="ability-desc">Double damage volgende beurt.</span><div class="ability-meta"><span>25 MP</span><span>Self</span></div></div>
+            <div class="ability-card"><span class="ability-name">🎼 Symphony (Lvl 12)</span><span class="ability-desc">Team Heal (12 HP).</span><div class="ability-meta"><span>35 MP</span><span>12 Heal</span></div></div>
+            <div class="ability-card"><span class="ability-name">🔁 Encore (Lvl 15)</span><span class="ability-desc">Krijg een extra beurt.</span><div class="ability-meta"><span>45 MP</span><span>Self</span></div></div>
+            <div class="ability-card"><span class="ability-name">🏆 Chart Topper (Lvl 20)</span><span class="ability-desc">25 HP Schade + Coin steel.</span><div class="ability-meta"><span>65 MP</span><span>25 DMG</span></div></div>
+        </div>
+    </section>
+
+    <section class="class-section">
+        <div class="class-header">Rogue 🗡️</div>
+        <div class="ability-grid">
+            <div class="ability-card"><span class="ability-name">🗡 Stab (Lvl 1)</span><span class="ability-desc">3 HP Schade.</span><div class="ability-meta"><span>3 MP</span><span>3 DMG</span></div></div>
+            <div class="ability-card"><span class="ability-name">🌫 Smoke (Lvl 2)</span><span class="ability-desc">Ontwijk de volgende aanval.</span><div class="ability-meta"><span>7 MP</span><span>Smoke FX</span></div></div>
+            <div class="ability-card"><span class="ability-name">💰 Pickpocket (Lvl 4)</span><span class="ability-desc">Steel 5 coins.</span><div class="ability-meta"><span>12 MP</span><span>Target</span></div></div>
+            <div class="ability-card"><span class="ability-name">🕸 Tripwire (Lvl 8)</span><span class="ability-desc">Stun (2 beurten).</span><div class="ability-meta"><span>16 MP</span><span>Sleep FX</span></div></div>
+            <div class="ability-card"><span class="ability-name">🧪 Poison (Lvl 10)</span><span class="ability-desc">5 HP per ronde schade.</span><div class="ability-meta"><span>24 MP</span><span>5 DoT</span></div></div>
+            <div class="ability-card"><span class="ability-name">👣 Shadow Step (Lvl 12)</span><span class="ability-desc">Word onzichtbaar.</span><div class="ability-meta"><span>30 MP</span><span>Self</span></div></div>
+            <div class="ability-card"><span class="ability-name">🔪 Backstab (Lvl 15)</span><span class="ability-desc">Negeert defense (18 DMG).</span><div class="ability-meta"><span>40 MP</span><span>18 DMG</span></div></div>
+            <div class="ability-card"><span class="ability-name">💀 Assassinate (Lvl 20)</span><span class="ability-desc">De genadeslag (30 DMG).</span><div class="ability-meta"><span>60 MP</span><span>30 DMG</span></div></div>
+        </div>
+    </section>
+
+    <section class="class-section">
+        <div class="class-header">Paladin 🛡️</div>
+        <div class="ability-grid">
+            <div class="ability-card"><span class="ability-name">🛡 Smite (Lvl 1)</span><span class="ability-desc">5 HP Schade.</span><div class="ability-meta"><span>6 MP</span><span>5 DMG</span></div></div>
+            <div class="ability-card"><span class="ability-name">✨ Cleanse (Lvl 2)</span><span class="ability-desc">Verwijder alle FX (Gif/Slaap).</span><div class="ability-meta"><span>9 MP</span><span>Target</span></div></div>
+            <div class="ability-card"><span class="ability-name">🤝 Guardian (Lvl 4)</span><span class="ability-desc">Vang schade voor iemand op.</span><div class="ability-meta"><span>14 MP</span><span>Target</span></div></div>
+            <div class="ability-card"><span class="ability-name">💿 Holy Vinyl (Lvl 8)</span><span class="ability-desc">15 HP Herstel.</span><div class="ability-meta"><span>22 MP</span><span>15 Heal</span></div></div>
+            <div class="ability-card"><span class="ability-name">🔅 Aura (Lvl 10)</span><span class="ability-desc">Geeft het hele team Mana.</span><div class="ability-meta"><span>28 MP</span><span>Team</span></div></div>
+            <div class="ability-card"><span class="ability-name">🧱 Wall of Sound (Lvl 12)</span><span class="ability-desc">Team Shield (10 HP).</span><div class="ability-meta"><span>38 MP</span><span>10 Heal</span></div></div>
+            <div class="ability-card"><span class="ability-name">⚖ Judgement (Lvl 15)</span><span class="ability-desc">20 HP Schade.</span><div class="ability-meta"><span>48 MP</span><span>20 DMG</span></div></div>
+            <div class="ability-card"><span class="ability-name">👼 Resurrection (Lvl 20)</span><span class="ability-desc">Breng dode terug (15 HP).</span><div class="ability-meta"><span>85 MP</span><span>15 Heal</span></div></div>
+        </div>
+    </section>
+
+    <section class="class-section">
+        <div class="class-header">Wench 🍺</div>
+        <div class="ability-grid">
+            <div class="ability-card"><span class="ability-name">🍺 Serve (Lvl 1)</span><span class="ability-desc">Geeft Mana aan doelwit.</span><div class="ability-meta"><span>4 MP</span><span>Target</span></div></div>
+            <div class="ability-card"><span class="ability-name">🍲 Stew (Lvl 2)</span><span class="ability-desc">6 HP Herstel.</span><div class="ability-meta"><span>8 MP</span><span>6 Heal</span></div></div>
+            <div class="ability-card"><span class="ability-name">🧹 Sweep (Lvl 4)</span><span class="ability-desc">Stun (2 beurten) + 2 DMG.</span><div class="ability-meta"><span>12 MP</span><span>2 DMG</span></div></div>
+            <div class="ability-card"><span class="ability-name">🍷 Fine Wine (Lvl 8)</span><span class="ability-desc">Buff alle stats.</span><div class="ability-meta"><span>20 MP</span><span>Target</span></div></div>
+            <div class="ability-card"><span class="ability-name">📣 Gossip (Lvl 10)</span><span class="ability-desc">Drain Mana van doelwit.</span><div class="ability-meta"><span>25 MP</span><span>Target</span></div></div>
+            <div class="ability-card"><span class="ability-name">🍗 Feast (Lvl 12)</span><span class="ability-desc">20 HP Herstel.</span><div class="ability-meta"><span>35 MP</span><span>20 Heal</span></div></div>
+            <div class="ability-card"><span class="ability-name">🍳 Iron Skillet (Lvl 15)</span><span class="ability-desc">15 HP Schade.</span><div class="ability-meta"><span>42 MP</span><span>15 DMG</span></div></div>
+            <div class="ability-card"><span class="ability-name">🏰 Grand Banquet (Lvl 20)</span><span class="ability-desc">Full Team Heal (50 HP).</span><div class="ability-meta"><span>70 MP</span><span>50 Heal</span></div></div>
+        </div>
+    </section>
+
+    <section class="class-section">
+        <div class="class-header">Bouncer 👊</div>
+        <div class="ability-grid">
+            <div class="ability-card"><span class="ability-name">👊 Punch (Lvl 1)</span><span class="ability-desc">6 HP Schade.</span><div class="ability-meta"><span>5 MP</span><span>6 DMG</span></div></div>
+            <div class="ability-card"><span class="ability-name">🤚 Block (Lvl 2)</span><span class="ability-desc">50% Schadevermindering.</span><div class="ability-meta"><span>10 MP</span><span>Self</span></div></div>
+            <div class="ability-card"><span class="ability-name">🚪 Door Eject (Lvl 4)</span><span class="ability-desc">Stun (2 beurten) + 4 DMG.</span><div class="ability-meta"><span>15 MP</span><span>4 DMG</span></div></div>
+            <div class="ability-card"><span class="ability-name">🧱 The Wall (Lvl 8)</span><span class="ability-desc">Onbeweeglijk (Immuun).</span><div class="ability-meta"><span>25 MP</span><span>Self</span></div></div>
+            <div class="ability-card"><span class="ability-name">😤 Intimidate (Lvl 10)</span><span class="ability-desc">Verlaag aanval van vijand.</span><div class="ability-meta"><span>30 MP</span><span>Target</span></div></div>
+            <div class="ability-card"><span class="ability-name">💥 Ground Slam (Lvl 12)</span><span class="ability-desc">Area of Effect schade (12 DMG).</span><div class="ability-meta"><span>40 MP</span><span>12 DMG</span></div></div>
+            <div class="ability-card"><span class="ability-name">⛓ Lockdown (Lvl 15)</span><span class="ability-desc">Blokkeer vijandelijke abilities.</span><div class="ability-meta"><span>50 MP</span><span>Target</span></div></div>
+            <div class="ability-card"><span class="ability-name">🐘 Stampede (Lvl 20)</span><span class="ability-desc">35 HP Schade.</span><div class="ability-meta"><span>75 MP</span><span>35 DMG</span></div></div>
+        </div>
+    </section>
+
+    <section class="class-section">
+        <div class="class-header">Monk 🧘</div>
+        <div class="ability-grid">
+            <div class="ability-card"><span class="ability-name">🧘 Focus (Lvl 1)</span><span class="ability-desc">Mana korting op volgende move.</span><div class="ability-meta"><span>2 MP</span><span>Self</span></div></div>
+            <div class="ability-card"><span class="ability-name">🧤 Palm Strike (Lvl 2)</span><span class="ability-desc">5 DMG + Steel Mana.</span><div class="ability-meta"><span>6 MP</span><span>5 DMG</span></div></div>
+            <div class="ability-card"><span class="ability-name">👣 Dash (Lvl 4)</span><span class="ability-desc">Teleporteer/Ontwijk.</span><div class="ability-meta"><span>10 MP</span><span>Self</span></div></div>
+            <div class="ability-card"><span class="ability-name">🌀 Inner Peace (Lvl 8)</span><span class="ability-desc">Mana regeneratie over tijd.</span><div class="ability-meta"><span>18 MP</span><span>Self</span></div></div>
+            <div class="ability-card"><span class="ability-name">🤜 Combo Kick (Lvl 10)</span><span class="ability-desc">14 HP Schade.</span><div class="ability-meta"><span>26 MP</span><span>14 DMG</span></div></div>
+            <div class="ability-card"><span class="ability-name">☁ Cloud Walk (Lvl 12)</span><span class="ability-desc">Vlieg (Immuun voor melee).</span><div class="ability-meta"><span>34 MP</span><span>Self</span></div></div>
+            <div class="ability-card"><span class="ability-name">☸ Zen Moment (Lvl 15)</span><span class="ability-desc">Volgende beurt is Mana gratis.</span><div class="ability-meta"><span>45 MP</span><span>Self</span></div></div>
+            <div class="ability-card"><span class="ability-name">⛩ Nirvana (Lvl 20)</span><span class="ability-desc">Reset stats + 50 Heal.</span><div class="ability-meta"><span>80 MP</span><span>50 Heal</span></div></div>
+        </div>
+    </section>
+
+    <section class="class-section">
+        <div class="class-header">Necro 💀</div>
+        <div class="ability-grid">
+            <div class="ability-card"><span class="ability-name">💀 Raise (Lvl 1)</span><span class="ability-desc">Dot schade (Gif).</span><div class="ability-meta"><span>6 MP</span><span>3 DoT</span></div></div>
+            <div class="ability-card"><span class="ability-name">🧛 Soul Tap (Lvl 2)</span><span class="ability-desc">Life steal (5 DMG / 5 Heal).</span><div class="ability-meta"><span>10 MP</span><span>5 DMG</span></div></div>
+            <div class="ability-card"><span class="ability-name">⚰ Decay (Lvl 4)</span><span class="ability-desc">Corrosie schade (Gif).</span><div class="ability-meta"><span>16 MP</span><span>3 DoT</span></div></div>
+            <div class="ability-card"><span class="ability-name">🦇 Bat (Lvl 8)</span><span class="ability-desc">Blind vijand (6 DMG).</span><div class="ability-meta"><span>24 MP</span><span>6 DMG</span></div></div>
+            <div class="ability-card"><span class="ability-name">🦴 Bone Shield (Lvl 10)</span><span class="ability-desc">8 HP Shield.</span><div class="ability-meta"><span>32 MP</span><span>8 Heal/Shield</span></div></div>
+            <div class="ability-card"><span class="ability-name">🌑 Curse (Lvl 12)</span><span class="ability-desc">-50% Mana vijand.</span><div class="ability-meta"><span>40 MP</span><span>Target</span></div></div>
+            <div class="ability-card"><span class="ability-name">🧟 Zombie Groove (Lvl 15)</span><span class="ability-desc">Maak een Zombie van doelwit!</span><div class="ability-meta"><span>55 MP</span><span>Zombify</span></div></div>
+            <div class="ability-card"><span class="ability-name">🌌 Army (Lvl 20)</span><span class="ability-desc">40 HP Schade.</span><div class="ability-meta"><span>90 MP</span><span>40 DMG</span></div></div>
+        </div>
+    </section>
+
+    <section class="class-section">
+        <div class="class-header">Druid 🌿</div>
+        <div class="ability-grid">
+            <div class="ability-card"><span class="ability-name">🌿 Entangle (Lvl 1)</span><span class="ability-desc">Vastzetten (2 DMG).</span><div class="ability-meta"><span>5 MP</span><span>2 DMG</span></div></div>
+            <div class="ability-card"><span class="ability-name">🐻 Bear Form (Lvl 2)</span><span class="ability-desc">Transformeer (+10 HP).</span><div class="ability-meta"><span>10 MP</span><span>10 Heal</span></div></div>
+            <div class="ability-card"><span class="ability-name">🐝 Bee Swarm (Lvl 4)</span><span class="ability-desc">5 DMG + Gif.</span><div class="ability-meta"><span>14 MP</span><span>5 DMG</span></div></div>
+            <div class="ability-card"><span class="ability-name">🍄 Spores (Lvl 8)</span><span class="ability-desc">Mist (Smoke FX).</span><div class="ability-meta"><span>20 MP</span><span>Smoke</span></div></div>
+            <div class="ability-card"><span class="ability-name">🦅 Eagle Eye (Lvl 10)</span><span class="ability-desc">100% Hit kans.</span><div class="ability-meta"><span>25 MP</span><span>Self</span></div></div>
+            <div class="ability-card"><span class="ability-name">🌳 Ironwood (Lvl 12)</span><span class="ability-desc">Team Shield (12 HP).</span><div class="ability-meta"><span>35 MP</span><span>12 Heal</span></div></div>
+            <div class="ability-card"><span class="ability-name">🐺 Pack Hunter (Lvl 15)</span><span class="ability-desc">22 HP Schade.</span><div class="ability-meta"><span>45 MP</span><span>22 DMG</span></div></div>
+            <div class="ability-card"><span class="ability-name">⛈️ Nature (Lvl 20)</span><span class="ability-desc">35 HP Schade.</span><div class="ability-meta"><span>75 MP</span><span>35 DMG</span></div></div>
+        </div>
+    </section>

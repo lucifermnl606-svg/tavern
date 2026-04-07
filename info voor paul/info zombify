@@ -1,0 +1,85 @@
+1. De Zombie Class & Abilities (Data)
+Dit zijn de vaardigheden die je krijgt als je een Zombie bent, en de aanval van de Necro/Gravedigger:
+
+// Necro & Gravedigger hebben de activatie-move:
+{n:"🧟 Zombie Groove", l:15, c:55, t:"target", fx:"zombify", desc:"Maak Zombie."}
+{n:"🪦 RIP", l:20, c:80, t:"target", fx:"zombify", desc:"Maak Zombie."}
+
+// De Zombie class zelf:
+"Zombie": [
+    {n:"🧠 Braaaaains!", l:1, c:0, t:"target", d:20, hSelf:5, desc:"Eet hersenen en herstel HP."},
+    {n:"🖐️ Slap", l:1, c:0, t:"target", d:25, desc:"Een flinke mep."},
+    {n:"🤮 Toxic Puke", l:1, c:0, t:"target", d:15, fx:"poison", desc:"Spuug gif over je vijand."},
+    {n:"🦴 Bone Throw", l:1, c:0, t:"target", d:35, dSelf:10, desc:"Gooi je eigen ribbenkast! (-10 HP)"},
+    {n:"☣️ Infection", l:1, c:0, t:"target", fx:"zombify", desc:"Alleen op vergiftigde vijanden!"}
+]
+
+2. De Logica: Iemand in een Zombie veranderen
+Dit gebeurt via de doZombify functie. Let op: als je al een zombie bent, moet het doelwit eerst vergiftigd zijn om de Infection te laten slagen.
+
+function execute(targetName) {
+    // Speciale check voor de 'Infection' move van de Zombie zelf
+    if (a.fx.toLowerCase() === 'zombify' && myData.class.toLowerCase() === "zombie") {
+        db.ref('accounts/' + targetName).once('value', snap => {
+            const targetData = snap.val();
+            if (!targetData.FX || targetData.FX.toLowerCase() !== 'poison') { 
+                alert("❌ Infectie mislukt: Het doelwit moet eerst VERGIFTIGD zijn!"); 
+            } else { doZombify(targetName, targetData); finishAction(); }
+        });
+        return;
+    }
+
+    // Algemene zombify (voor Necro/Gravedigger)
+    if (a.fx === 'zombify') {
+        db.ref('accounts/' + targetName).once('value', snap => { doZombify(targetName, snap.val()); finishAction(); });
+        return;
+    }
+}
+
+function doZombify(tName, tData) {
+    db.ref('accounts/' + tName).update({ 
+        originalClass: tData.class,   // Onthoudt wat je was
+        preZombieHP: tData.hp,        // Onthoudt je oude HP
+        class: 'Zombie', 
+        zombieTimer: 3,               // Je bent 3 beurten een zombie
+        hp: 20000,                    // Tijdelijk extreem veel HP
+        pendingFX: null, 
+        sleepTimer: 0 
+    });
+}
+
+3. De Logica: Terugveranderen naar mens
+Tijdens passTurn wordt de timer verlaagd. Als deze 0 bereikt, word je weer je oude class met je oude HP (min 30 schade).
+
+JavaScript
+if(npData.class === "Zombie") {
+    let zt = (npData.zombieTimer || 1) - 1;
+    if(zt <= 0) {
+        let oldHP = npData.preZombieHP || 500;
+        turnUpdates.class = npData.originalClass || "Wizard"; // Terug naar origineel
+        turnUpdates.zombieTimer = 0;
+        turnUpdates.hp = oldHP - 30; // Strafschade na genezing
+        turnUpdates.preZombieHP = null;
+        alert(nextPlayer.toUpperCase() + " is geen Zombie meer!");
+    } else {
+        turnUpdates.zombieTimer = zt;
+    }
+}
+4. Visuele Weergave (CSS & UI)
+De interface verandert van kleur als je een zombie bent.
+
+CSS
+/* CSS effect */
+.zombie-mode { 
+    filter: grayscale(0.5) sepia(0.5) !important; 
+    background: #1a2310 !important; 
+    color: #a2b78d !important; 
+}
+JavaScript
+// UI Update
+if (myData.class === "Zombie") { 
+    stText = "ZOMBIE 🧟"; 
+    stColor = "var(--green)"; 
+}
+document.getElementById('zombie-timer-display').innerText = (myData.zombieTimer > 0) ? `ZOMBIE VLOEK: ${myData.zombieTimer} BEURTEN` : "";
+document.getElementById('game-body').className = (myData.class === "Zombie") ? "zombie-mode" : "";
