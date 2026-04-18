@@ -195,10 +195,10 @@ function passTurn() {
             if(npData.pendingFX === "poison") {
                 db.ref('accounts/' + nextPlayer + '/hp').transaction(h => h - 10);
             }
-            if(npData.pendingFX === "sleep" && (npData.sleepTimer || 0) > 0) {
-                let st = npData.sleepTimer - 1;
-                turnUpdates.sleepTimer = st;
-                if(st <= 0) turnUpdates.pendingFX = null; 
+                if(npData.pendingFX === "sleep"){
+					let st = (npData.sleepTimer || 1) - 1;
+                    turnUpdates.sleepTimer = st;
+                    if(st <= 0) turnUpdates.pendingFX = null;  
             }
             if(npData.class === "Zombie") {
                 let zt = (npData.zombieTimer || 1) - 1;
